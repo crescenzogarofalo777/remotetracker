@@ -43,8 +43,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.entryImageView.addGestureRecognizer(tapEntry)
         self.exitImageView.addGestureRecognizer(tapExit)
         self.entryImageView.isUserInteractionEnabled = true
-        self.exitImageView.isUserInteractionEnabled = true
-        
+        self.exitImageView.isUserInteractionEnabled = true        
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
