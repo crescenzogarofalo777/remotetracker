@@ -92,11 +92,22 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
 
     func sendButtonsTapped(sender: UITapGestureRecognizer) {
+        let alertTitle : String = "Remote tracker"
+        var messageTitle : String = ""
         if sender.view == entryImageView {
             debugPrint("tapped entry button")
+            messageTitle = "Posizione ingresso inviata"
         } else if sender.view == exitImageView {
             debugPrint("tapped exit button")
+            messageTitle = "Posizione uscita inviata"
         }
+        let alert = UIAlertController(title: alertTitle,
+                                      message: messageTitle,
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Ok", style: .cancel, handler: nil))
+        
+        self.present(alert, animated: true, completion: nil)
+
     }
 }
 
