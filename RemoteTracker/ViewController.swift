@@ -6,6 +6,7 @@
 //  Copyright © 2017 crescenzo garofalo. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import MapKit
 
@@ -17,7 +18,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     @IBOutlet weak var deviceIdLabel: UILabel!
     
     var positionManager: CLLocationManager!
-    var userPosition: CLLocationCoordinate2D!
+    var geoCoder : CLGeocoder!
+    var userPosition: CLLocation!
     @IBOutlet weak var positionLabel: UILabel!
     
     var renderedMap: Bool = false
@@ -35,8 +37,14 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.positionManager.requestWhenInUseAuthorization()
         self.positionManager.distanceFilter = 5
         self.positionManager.startUpdatingLocation()
-        deviceIdLabel.text! = "Device ID: \(UIDevice.current.identifierForVendor!.uuidString)"
-        positionLabel.text! = "Ricerca posizione in corso..."
+        
+        let deviceId = UIDevice.current.identifierForVendor!.uuidString
+        let strData = (deviceId).data(using: String.Encoding.utf8)
+        CommunicationManager.deviceIdbase64 = strData!.base64EncodedString(options: [])
+
+        
+        self.deviceIdLabel.text! = "Device ID: \(deviceId)"
+        self.positionLabel.text! = "Ricerca posizione in corso..."
         
         let tapEntry = UITapGestureRecognizer(target: self, action: #selector(sendButtonsTapped(sender:)))
         let tapExit = UITapGestureRecognizer(target: self, action: #selector(sendButtonsTapped(sender:)))
@@ -44,13 +52,15 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.exitImageView.addGestureRecognizer(tapExit)
         self.entryImageView.isUserInteractionEnabled = true
         self.exitImageView.isUserInteractionEnabled = true
+        self.geoCoder = CLGeocoder()
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        self.userPosition = manager.location?.coordinate
+        self.userPosition = manager.location
+        
         //debugPrint("posizione aggiornata : lat : \(self.userPosition.latitude) - lon : \(self.userPosition.longitude)")
         let span = MKCoordinateSpanMake(0.001, 0.001)
-        let region = MKCoordinateRegion(center: self.userPosition, span: span)
+        let region = MKCoordinateRegion(center: self.userPosition.coordinate, span: span)
         self.mappingView.setRegion(region, animated: true)
         
         self.mappingView.showsUserLocation = true
@@ -82,7 +92,25 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func updatePositionLabel() {
         if (renderedMap && loadedMap && regionChanged && annotationLoaded) {
-            positionLabel.text! = "lat : \(String(format: "%.2f",self.userPosition.latitude)) - lon : \(String(format: "%.2f",self.userPosition.longitude))"
+            positionLabel.text! = "lat : \(String(format: "%.2f",self.userPosition.coordinate.latitude)) - lon : \(String(format: "%.2f",self.userPosition.coordinate.longitude))"
+            CommunicationManager.instance.remoteTrachkerInput.setLatitude(latitude: self.userPosition.coordinate.latitude)
+            CommunicationManager.instance.remoteTrachkerInput.setLongitude(longitude: self.userPosition.coordinate.longitude)
+            //CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: <#T##String#>)
+            
+            self.geoCoder.reverseGeocodeLocation(self.userPosition ) { placemarks, error in
+                
+                guard let addressDict = placemarks?[0].addressDictionary else {
+                    return
+                }
+                
+                let streetAddress = addressDict["Name"] as! String
+                let city = addressDict["City"] as! String
+                let locality = streetAddress + ", " + city
+                CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: locality)
+
+            }
+            
+            CommunicationManager.instance.remoteTrachkerInput.setTrackDate(trackDate: formatCurrentDate())
         }
     }
     
@@ -96,9 +124,11 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         var messageTitle : String = ""
         if sender.view == entryImageView {
             debugPrint("tapped entry button")
+            CommunicationManager.instance.sendUserPositionInfo(trackerstatus: 1)
             messageTitle = "Posizione ingresso inviata"
         } else if sender.view == exitImageView {
             debugPrint("tapped exit button")
+            CommunicationManager.instance.sendUserPositionInfo(trackerstatus: 0)
             messageTitle = "Posizione uscita inviata"
         }
         let alert = UIAlertController(title: alertTitle,
@@ -108,6 +138,13 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.present(alert, animated: true, completion: nil)
 
+    }
+    
+    func formatCurrentDate() -> String {
+        let formatter = Foundation.DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        let date = Date()
+        return formatter.string(from: date)
     }
 }
 

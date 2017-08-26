@@ -10,24 +10,31 @@ import Foundation
 
 class CommunicationManager: NSObject {
     
+    
+    var remoteTrachkerInput : RemoteTrackerInput
+    public static var deviceIdbase64 : String = ""
     static var instance : CommunicationManager = CommunicationManager()
     
-    func sendUserPositionInfo(latitude: Double, longitude: Double) {
+    override init() {
+        self.remoteTrachkerInput = RemoteTrackerInput()
+    }
+    
+    func sendUserPositionInfo(trackerstatus: Int) {
         debugPrint("sending info to back-end")
-        /*let semaphore = DispatchSemaphore(value: 0)
+        let semaphore = DispatchSemaphore(value: 0)
         
-        let json: [String: Any] = ["latitude": latitude,"longitude":longitude]
+        let json: [String: Any] = ["latitude": self.remoteTrachkerInput.getLatitude(),"longitude":self.remoteTrachkerInput.getLongitude(), "locality":self.remoteTrachkerInput.getLocality(),"trackdate":self.remoteTrachkerInput.getTrackDate(),"trackerStatus":trackerstatus]
         debugPrint("json : \(json)")
         let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
         debugPrint("jsonData : \(jsonData)")
         // create post requests
-        let url = URL(string: "http://perudo-gcgame.rhcloud.com/jersey/login")!
+        let url = URL(string: "http://timetracker.dodifferent.it/TimeTracker/rest/remote-track/")!
         var request = URLRequest(url: url)
         
-        
-        
+
         
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.addValue("id", forHTTPHeaderField: CommunicationManager.deviceIdbase64)
         request.httpMethod = "POST"
         
         // insert json data to the request
@@ -38,14 +45,16 @@ class CommunicationManager: NSObject {
                 debugPrint(error?.localizedDescription ?? "No data")
                 return
             }
+            debugPrint("data : \(data)")
             responseRemoteTracker = try? JSONSerialization.jsonObject(with: data, options: []) as! [String : Any]
+            debugPrint("response : \(responseRemoteTracker)")
             //TODO: add code for sending info to BE
             semaphore.signal()
         }
         task.resume()
         
         
-        semaphore.wait(timeout: DispatchTime.distantFuture)*/
+        semaphore.wait(timeout: DispatchTime.distantFuture)
         
     }
 }
