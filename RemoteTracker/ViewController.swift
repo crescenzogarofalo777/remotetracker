@@ -122,15 +122,23 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     func sendButtonsTapped(sender: UITapGestureRecognizer) {
         let alertTitle : String = "Remote tracker"
         var messageTitle : String = ""
+        var trackerStatus = -1
         if sender.view == entryImageView {
             debugPrint("tapped entry button")
-            CommunicationManager.instance.sendUserPositionInfo(trackerstatus: 1)
+            trackerStatus = 1
             messageTitle = "Posizione ingresso inviata"
         } else if sender.view == exitImageView {
             debugPrint("tapped exit button")
-            CommunicationManager.instance.sendUserPositionInfo(trackerstatus: 0)
+            trackerStatus = 0
             messageTitle = "Posizione uscita inviata"
         }
+        let statusCode = CommunicationManager.instance.sendUserPositionInfo(trackerStatus: trackerStatus)
+        if statusCode == -1 || statusCode == 500 {
+            messageTitle = "Internal Server Error"
+        } else if statusCode == 401 || statusCode == 412 {
+            messageTitle = "Utente non autorizzato"
+        }
+        
         let alert = UIAlertController(title: alertTitle,
                                       message: messageTitle,
                                       preferredStyle: .alert)

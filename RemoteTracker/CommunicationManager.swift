@@ -19,11 +19,12 @@ class CommunicationManager: NSObject {
         self.remoteTrachkerInput = RemoteTrackerInput()
     }
     
-    func sendUserPositionInfo(trackerstatus: Int) {
+    func sendUserPositionInfo(trackerStatus: Int) -> Int {
         debugPrint("sending info to back-end")
+        var statusCode = -1
         let semaphore = DispatchSemaphore(value: 0)
         
-        let json: [String: Any] = ["latitude": self.remoteTrachkerInput.getLatitude(),"longitude":self.remoteTrachkerInput.getLongitude(), "locality":self.remoteTrachkerInput.getLocality(),"trackdate":self.remoteTrachkerInput.getTrackDate(),"trackerStatus":trackerstatus]
+        let json: [String: Any] = ["latitude": self.remoteTrachkerInput.getLatitude(),"longitude":self.remoteTrachkerInput.getLongitude(), "locality":self.remoteTrachkerInput.getLocality(),"trackdate":self.remoteTrachkerInput.getTrackDate(),"trackerStatus":trackerStatus]
         debugPrint("json : \(json)")
         let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
         debugPrint("jsonData : \(jsonData)")
@@ -45,7 +46,11 @@ class CommunicationManager: NSObject {
                 debugPrint(error?.localizedDescription ?? "No data")
                 return
             }
-            debugPrint("data : \(data)")
+            
+            if let httpresponse = response as? HTTPURLResponse {
+                statusCode = httpresponse.statusCode
+                debugPrint("status code : \(httpresponse.statusCode)")
+            }
             responseRemoteTracker = try? JSONSerialization.jsonObject(with: data, options: []) as! [String : Any]
             debugPrint("response : \(responseRemoteTracker)")
             //TODO: add code for sending info to BE
@@ -55,6 +60,8 @@ class CommunicationManager: NSObject {
         
         
         semaphore.wait(timeout: DispatchTime.distantFuture)
+        
+        return statusCode
         
     }
 }
