@@ -92,7 +92,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func updatePositionLabel() {
         if (renderedMap && loadedMap && regionChanged && annotationLoaded) {
-            positionLabel.text! = "lat : \(String(format: "%.2f",self.userPosition.coordinate.latitude)) - lon : \(String(format: "%.2f",self.userPosition.coordinate.longitude))"
+            
+            
             CommunicationManager.instance.remoteTrachkerInput.setLatitude(latitude: self.userPosition.coordinate.latitude)
             CommunicationManager.instance.remoteTrachkerInput.setLongitude(longitude: self.userPosition.coordinate.longitude)
             //CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: <#T##String#>)
@@ -107,6 +108,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 let city = addressDict["City"] as! String
                 let locality = streetAddress + ", " + city
                 CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: locality)
+                self.positionLabel.text! = locality
 
             }
             
