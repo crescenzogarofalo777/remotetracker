@@ -40,7 +40,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         let deviceId = UIDevice.current.identifierForVendor!.uuidString
         let strData = (deviceId).data(using: String.Encoding.utf8)
-        CommunicationManager.deviceIdbase64 = strData!.base64EncodedString(options: [])
+        CommunicationManager.deviceIdbase64 = strData!.base64EncodedString()
 
         
         self.deviceIdLabel.text! = "Device ID: \(deviceId)"
@@ -106,7 +106,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
                 
                 let streetAddress = addressDict["Name"] as! String
                 let city = addressDict["City"] as! String
-                let locality = streetAddress + ", " + city
+                let locality = streetAddress + " " + city
                 CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: locality)
                 self.positionLabel.text! = locality
 
@@ -128,17 +128,21 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         if sender.view == entryImageView {
             debugPrint("tapped entry button")
             trackerStatus = 1
-            messageTitle = "Posizione ingresso inviata"
         } else if sender.view == exitImageView {
             debugPrint("tapped exit button")
             trackerStatus = 0
-            messageTitle = "Posizione uscita inviata"
         }
         let statusCode = CommunicationManager.instance.sendUserPositionInfo(trackerStatus: trackerStatus)
         if statusCode == -1 || statusCode == 500 {
             messageTitle = "Internal Server Error"
         } else if statusCode == 401 || statusCode == 412 {
             messageTitle = "Utente non autorizzato"
+        } else if statusCode == 400 {
+            messageTitle = "Richiesta errata"
+        } else if statusCode != 200 {
+            messageTitle = "Problemi di comunicazione"
+        } else {
+            messageTitle = "Evento inviato con successo"
         }
         
         let alert = UIAlertController(title: alertTitle,

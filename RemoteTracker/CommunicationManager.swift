@@ -24,10 +24,11 @@ class CommunicationManager: NSObject {
         var statusCode = -1
         let semaphore = DispatchSemaphore(value: 0)
         
-        let json: [String: Any] = ["latitude": self.remoteTrachkerInput.getLatitude(),"longitude":self.remoteTrachkerInput.getLongitude(), "locality":self.remoteTrachkerInput.getLocality(),"trackdate":self.remoteTrachkerInput.getTrackDate(),"trackerStatus":trackerStatus]
+        let json: [String: Any] = ["latitude": "\(self.remoteTrachkerInput.getLatitude())","longitude":"\(self.remoteTrachkerInput.getLongitude())", "locality":"\(self.remoteTrachkerInput.getLocality())","trackdate":"\(self.remoteTrachkerInput.getTrackDate())","trackerStatus":trackerStatus]
         debugPrint("json : \(json)")
-        let jsonData = try? JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
-        debugPrint("jsonData : \(jsonData)")
+        let jsonData = try? JSONSerialization.data(withJSONObject: json, options: [])
+        debugPrint("jsonData : \(jsonData!)")
+
         // create post requests
         let url = URL(string: "http://timetracker.dodifferent.it/TimeTracker/rest/remote-track/")!
         var request = URLRequest(url: url)
@@ -35,11 +36,11 @@ class CommunicationManager: NSObject {
 
         
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("id", forHTTPHeaderField: CommunicationManager.deviceIdbase64)
+        request.addValue(CommunicationManager.deviceIdbase64, forHTTPHeaderField: "id")
         request.httpMethod = "POST"
         
         // insert json data to the request
-        request.httpBody = jsonData
+        request.httpBody = jsonData!
         var responseRemoteTracker : [String: Any]? = nil
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             guard let data = data, error == nil else {
