@@ -122,6 +122,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     }
 
     func sendButtonsTapped(sender: UITapGestureRecognizer) {
+        let currentDate = formatCurrentDate()
+        debugPrint("current date : \(currentDate)")
+        CommunicationManager.instance.remoteTrachkerInput.setTrackDate(trackDate: currentDate)
         let alertTitle : String = "Remote tracker"
         var messageTitle : String = ""
         var trackerStatus = -1
@@ -156,9 +159,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     
     func formatCurrentDate() -> String {
         let formatter = Foundation.DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'"
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
         let date = Date()
-        return formatter.string(from: date)
+        return formatter.string(from: date) + "+0200"
     }
 }
 
