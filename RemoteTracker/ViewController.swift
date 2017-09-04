@@ -26,7 +26,9 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
     var loadedMap: Bool = false
     var regionChanged: Bool = false
     var annotationLoaded: Bool = false
+    var tapGesturesAdded = false
     
+
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -45,11 +47,8 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         
         self.deviceIdLabel.text! = "Device ID: \(deviceId)"
         self.positionLabel.text! = "Ricerca posizione in corso..."
-        
-        let tapEntry = UITapGestureRecognizer(target: self, action: #selector(sendButtonsTapped(sender:)))
-        let tapExit = UITapGestureRecognizer(target: self, action: #selector(sendButtonsTapped(sender:)))
-        self.entryImageView.addGestureRecognizer(tapEntry)
-        self.exitImageView.addGestureRecognizer(tapExit)
+        self.entryImageView.tintColor = UIColor.gray
+        self.exitImageView.tintColor = UIColor.gray
         self.entryImageView.isUserInteractionEnabled = true
         self.exitImageView.isUserInteractionEnabled = true
         self.geoCoder = CLGeocoder()
@@ -57,6 +56,16 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         self.userPosition = manager.location
+        
+        if !tapGesturesAdded && self.userPosition.coordinate.latitude != 0 && self.userPosition.coordinate.longitude != 0 {
+            self.entryImageView.tintColor = UIColor.black
+            self.exitImageView.tintColor = UIColor.black
+            let tapEntry = UITapGestureRecognizer(target: self, action: #selector(sendButtonsTapped(sender:)))
+            let tapExit = UITapGestureRecognizer(target: self, action: #selector(sendButtonsTapped(sender:)))
+            self.entryImageView.addGestureRecognizer(tapEntry)
+            self.exitImageView.addGestureRecognizer(tapExit)
+            self.tapGesturesAdded = true
+        }
         
         //debugPrint("posizione aggiornata : lat : \(self.userPosition.latitude) - lon : \(self.userPosition.longitude)")
         let span = MKCoordinateSpanMake(0.001, 0.001)
@@ -97,19 +106,20 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
             CommunicationManager.instance.remoteTrachkerInput.setLatitude(latitude: self.userPosition.coordinate.latitude)
             CommunicationManager.instance.remoteTrachkerInput.setLongitude(longitude: self.userPosition.coordinate.longitude)
             //CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: <#T##String#>)
-            
-            self.geoCoder.reverseGeocodeLocation(self.userPosition ) { placemarks, error in
+            if self.userPosition.coordinate.latitude != 0 && self.userPosition.coordinate.longitude != 0 {
+                self.geoCoder.reverseGeocodeLocation(self.userPosition ) { placemarks, error in
                 
-                guard let addressDict = placemarks?[0].addressDictionary else {
-                    return
-                }
+                    guard let addressDict = placemarks?[0].addressDictionary else {
+                        return
+                    }
                 
-                let streetAddress = addressDict["Name"] as! String
-                let city = addressDict["City"] as! String
-                let locality = streetAddress + " " + city
-                CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: locality)
-                self.positionLabel.text! = locality
+                    let streetAddress = addressDict["Name"] as! String
+                    let city = addressDict["City"] as! String
+                    let locality = streetAddress + " " + city
+                    CommunicationManager.instance.remoteTrachkerInput.setLocality(locality: locality)
+                    self.positionLabel.text! = locality
 
+                }
             }
             
             CommunicationManager.instance.remoteTrachkerInput.setTrackDate(trackDate: formatCurrentDate())
