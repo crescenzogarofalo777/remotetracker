@@ -65,12 +65,25 @@
                                     <constraint firstAttribute="bottom" secondItem="Vbm-Jc-SaL" secondAttribute="bottom" constant="20" id="w9o-OA-ZeG"/>
                                 </constraints>
                             </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Iot-mo-ILl" userLabel="refresh">
+                                <rect key="frame" x="299" y="58" width="60" height="60"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="P5U-AA-6Kr"/>
+                                    <constraint firstAttribute="height" constant="60" id="rhg-dQ-jKH"/>
+                                </constraints>
+                                <state key="normal" image="refresh"/>
+                                <connections>
+                                    <action selector="refreshAction:" destination="BYZ-38-t0r" eventType="touchUpInside" id="4Ti-KM-Xte"/>
+                                </connections>
+                            </button>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="mDu-UH-9zh" secondAttribute="trailing" id="Jjp-M3-hlh"/>
                             <constraint firstItem="CQC-wM-vSU" firstAttribute="top" secondItem="S6K-81-IwS" secondAttribute="bottom" id="RFS-tx-BdY"/>
                             <constraint firstAttribute="trailing" secondItem="CQC-wM-vSU" secondAttribute="trailing" id="VKN-Oi-NQG"/>
+                            <constraint firstItem="Iot-mo-ILl" firstAttribute="top" secondItem="mDu-UH-9zh" secondAttribute="bottom" constant="8" id="Vuo-X5-xwA"/>
                             <constraint firstAttribute="trailing" secondItem="S6K-81-IwS" secondAttribute="trailing" id="clp-dM-gU4"/>
                             <constraint firstItem="S6K-81-IwS" firstAttribute="top" secondItem="mDu-UH-9zh" secondAttribute="bottom" id="dcf-jA-H7F"/>
                             <constraint firstItem="mDu-UH-9zh" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" constant="20" id="eI9-vq-1XE"/>
@@ -78,6 +91,7 @@
                             <constraint firstItem="mDu-UH-9zh" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="iiH-pa-UAh"/>
                             <constraint firstItem="CQC-wM-vSU" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="oCS-QJ-8ll"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="CQC-wM-vSU" secondAttribute="bottom" id="rOB-xl-A19"/>
+                            <constraint firstAttribute="trailing" secondItem="Iot-mo-ILl" secondAttribute="trailing" constant="16" id="wGg-qX-11J"/>
                         </constraints>
                     </view>
                     <connections>
@@ -96,5 +110,6 @@
     <resources>
         <image name="entryButton" width="60" height="60"/>
         <image name="exitButton" width="60" height="60"/>
+        <image name="refresh" width="60" height="60"/>
     </resources>
 </document>

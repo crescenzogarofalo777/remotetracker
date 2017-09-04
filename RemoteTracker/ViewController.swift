@@ -11,6 +11,22 @@ import UIKit
 import MapKit
 
 class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDelegate {
+    
+    @IBAction func refreshAction(_ sender: UIButton) {
+        
+        sender.pulse()
+        UIView.animate(withDuration: 0.15, animations: { () -> Void in
+            sender.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi))
+            
+        })
+        UIView.animate(withDuration: 0.15, delay: 0.15, options: .curveEaseIn, animations: { () -> Void in
+            sender.transform = CGAffineTransform(rotationAngle: CGFloat(Double.pi * 2))
+            
+        })
+        
+        self.positionManager.stopUpdatingLocation()
+        self.positionManager.startUpdatingLocation()
+    }
 
     @IBOutlet weak var entryImageView: UIImageView!
     @IBOutlet weak var mappingView: MKMapView!
@@ -52,6 +68,7 @@ class ViewController: UIViewController, MKMapViewDelegate, CLLocationManagerDele
         self.entryImageView.isUserInteractionEnabled = true
         self.exitImageView.isUserInteractionEnabled = true
         self.geoCoder = CLGeocoder()
+        
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
